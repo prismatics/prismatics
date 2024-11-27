@@ -1,0 +1,7 @@
+src
+example
+tsconfig.json
+.prettierrc
+.eslintrc
+jest.config.js
+**/__tests__/**

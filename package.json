@@ -1,0 +1,43 @@
+{
+  "name": "prismatics",
+  "private": true,
+  "scripts": {
+    "---react package scripts---": "",
+    "react:build": "pnpm --filter @prismatics/react build",
+    "react:dev": "pnpm --filter @prismatics/react dev",
+    "react:watch": "pnpm --filter @prismatics/react watch",
+    "react:test": "pnpm --filter @prismatics/react test",
+    "react:clean": "pnpm --filter @prismatics/react clean",
+    "react:lint": "pnpm --filter @prismatics/react lint",
+    "react:release": "pnpm react:build && changeset publish --filter={@prismatics/react} --tag beta",
+
+    "---react native package scripts---": "",
+    "react-native:build": "pnpm --filter @prismatics/react-native build",
+    "react-native:dev": "pnpm --filter @prismatics/react-native dev",
+    "react-native:watch": "pnpm --filter @prismatics/react-native watch",
+    "react-native:test": "pnpm --filter @prismatics/react-native test",
+    "react-native:clean": "pnpm --filter @prismatics/react-native clean",
+    "react-native:lint": "pnpm --filter @prismatics/react-native lint",
+    "react-native:release": "pnpm react-native:build && changeset publish --filter={@prismatics/react-native} --tag beta",
+
+    "---run examples---": "",
+    "example-react:dev": "pnpm --filter react-example dev",
+    "example-react:build": "pnpm --filter react-example build",
+    "example-react:clean": "pnpm --filter react-example clean",
+    "example-react-native:dev": "pnpm --filter react-native-example dev",
+    "example-react-native:clean": "pnpm --filter react-native-example clean",
+
+    "---workspace scripts---": "",
+    "clean": "pnpm -r exec rm -rf node_modules && rm -rf node_modules",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+
+    "--pre-release exit--": "",
+    "pre:exit": "changeset pre exit",
+    "stable:release": "pnpm pre:exit && pnpm version-packages && pnpm build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "typescript": "^5.3.3"
+  }
+}

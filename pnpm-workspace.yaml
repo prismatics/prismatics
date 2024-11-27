@@ -1,0 +1,7 @@
+packages:
+  # Core packages
+  - 'packages/*'
+  # Example applications
+  - 'example/*'
+  # Exclude test directories
+  - '!**/test/**'
