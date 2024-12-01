@@ -11,8 +11,6 @@ const DEFAULT_METRICS: PerformanceMetrics = {
 };
 
 class PerformanceMonitor {
-  private frameCount: number = 0;
-  private lastFPSUpdate: number = 0;
   private currentFPS: number = 60;
   private batteryManager: BatteryManager | null = null;
   private batteryInfo: PerformanceMetrics['batteryInfo'] = undefined;
@@ -81,25 +79,34 @@ class PerformanceMonitor {
     this.animationFrameId = requestAnimationFrame(trackFrame);
   }
 
+  public async getMetrics(): Promise<PerformanceMetrics> {
+    await this.initialize();
+    return this.metricsState;
+  }
+
+  private getMemoryMetrics() {
+    if (typeof performance === 'undefined' || !performance.memory) {
+      return {
+        used: 0,
+        total: 0,
+        percentage: 0,
+      };
+    }
+
+    const used = performance.memory.usedJSHeapSize;
+    const total = performance.memory.jsHeapSizeLimit;
+
+    return {
+      used,
+      total,
+      percentage: total > 0 ? (used / total) * 100 : 0,
+    };
+  }
+
   private updateMetricsState() {
     if (typeof window === 'undefined') return;
 
-    const memory =
-      'performance' in window && (performance as any).memory
-        ? {
-            used: Math.round(
-              (performance as any).memory.usedJSHeapSize / (1024 * 1024),
-            ),
-            total: Math.round(
-              (performance as any).memory.totalJSHeapSize / (1024 * 1024),
-            ),
-            percentage: Math.round(
-              ((performance as any).memory.usedJSHeapSize /
-                (performance as any).memory.totalJSHeapSize) *
-                100,
-            ),
-          }
-        : { used: 0, total: 0, percentage: 0 };
+    const memory = this.getMemoryMetrics();
 
     this.metricsState = {
       fps: Math.round(this.currentFPS),
@@ -107,11 +114,6 @@ class PerformanceMonitor {
       batteryInfo: this.batteryInfo,
       timestamp: Date.now(),
     };
-  }
-
-  public async getMetrics(): Promise<PerformanceMetrics> {
-    await this.initialize();
-    return this.metricsState;
   }
 
   public cleanup() {

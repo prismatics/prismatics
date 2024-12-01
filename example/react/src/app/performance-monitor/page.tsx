@@ -1,6 +1,6 @@
 'use client';
 
-import { usePerformance } from '@prismatics/react';
+import { usePerformanceMonitor, usePerformanceSubscription } from '@prismatics/react';
 import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -19,8 +19,8 @@ function getPerformanceStatus(fps: number) {
 }
 
 export default function PerformanceMonitorPage() {
-    const { metrics, isBatteryMonitoringAvailable } = usePerformance({
-        sampleRate: 5000, //5 seconds
+    const { metrics, isBatteryMonitoringAvailable, isLowPerformance } = usePerformanceMonitor({
+        sampleRate: 5000, // 5 seconds
         enableBatteryMonitoring: true,
         enableWebVitals: true,
     });
@@ -43,14 +43,29 @@ export default function PerformanceMonitorPage() {
         }
     }, [metrics]);
 
+    // Subscribe to performance updates
+    usePerformanceSubscription((newMetrics) => {
+        console.log('Performance update:', newMetrics);
+    });
+
     return (
         <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-sm p-6">
-                <h1 className="text-2xl font-bold mb-2">Performance Monitor</h1>
+                <div className='flex flex-row gap-3 items-center'>
+                    <h1 className="text-2xl font-bold mb-2">Performance Monitor</h1>
+                    {isLowPerformance && (
+                        <p className="text-white bg-orange-500 p-2 rounded-full px-3 w-fit text-xs">
+                            Low performance detected
+                        </p>
+                    )}
+                </div>
+
                 <p className="text-gray-600">
                     Real-time monitoring of key performance metrics including FPS, memory usage,
                     and battery status. The graph shows the last 30 seconds of data.
                 </p>
+
+
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -59,7 +74,7 @@ export default function PerformanceMonitorPage() {
                     <h2 className="text-lg font-semibold mb-2">FPS</h2>
                     <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-bold">
-                            {metrics?.fps.toFixed(1)}
+                            {metrics?.fps.toFixed(1) || 'N/A'}
                         </span>
                         <span className={`text-sm ${status.color}`}>
                             {status.text}
@@ -72,14 +87,13 @@ export default function PerformanceMonitorPage() {
                     <h2 className="text-lg font-semibold mb-2">Memory Usage</h2>
                     <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-bold">
-                            {metrics?.memory.percentage.toFixed(1)}%
+                            {metrics?.memory.percentage.toFixed(1) || 'N/A'}%
                         </span>
                         {metrics?.memory.total && (
                             <span className="text-sm text-gray-600">
-                                of {(metrics?.memory.total / (1024 * 1024)).toFixed(0)} MB
+                                of {(metrics.memory.total / (1024 * 1024)).toFixed(0)} MB
                             </span>
                         )}
-
                     </div>
                 </div>
 

@@ -18,6 +18,7 @@ export interface PerformanceMetrics {
     dischargingTime: number;
   };
   timestamp: number;
+  performanceIssue?: PerformanceIssue;
 }
 
 export interface PerformanceThresholds {
@@ -50,4 +51,39 @@ declare global {
   interface Navigator {
     getBattery?: () => Promise<BatteryManager>;
   }
+}
+
+// Chrome-specific performance memory API
+interface MemoryInfo {
+  jsHeapSizeLimit: number;
+  totalJSHeapSize: number;
+  usedJSHeapSize: number;
+}
+
+declare global {
+  interface Performance {
+    memory?: MemoryInfo;
+  }
+}
+
+export interface PerformanceTrace {
+  name: string;
+  startTime: number;
+  metrics: {
+    startMemory: number;
+    startFps: number;
+  };
+}
+
+export interface PerformanceTraceResult {
+  name: string;
+  duration: number;
+  memoryImpact: number;
+  fpsImpact: number;
+  timestamp: number;
+}
+
+interface PerformanceIssue {
+  type: string;
+  value: number;
 }

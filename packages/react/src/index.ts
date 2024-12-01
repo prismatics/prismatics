@@ -1,12 +1,22 @@
+// Core
+export { PerformanceClient } from './core/PerformanceClient';
+
 // Components
-export { PerformanceBoundary } from './components/PerformanceBoundary';
+export { PerformanceProvider } from './components/PerformanceProvider';
 
 // Hooks
-export { usePerformance } from './hooks/usePerformance';
+export { usePerformanceTask } from './hooks/usePerformanceTask';
+export { usePerformanceMonitor } from './hooks/usePerformanceMonitor';
+export { usePerformanceSubscription } from './hooks/usePerformanceSubscription';
+
+// Context
+export { usePerformanceContext } from './context/PerformanceContext';
 
 // Types
 export type {
   PerformanceMetrics,
   PerformanceConfig,
   PerformanceThresholds,
+  PerformanceTrace,
+  PerformanceTraceResult,
 } from './types';
