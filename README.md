@@ -1,8 +1,8 @@
 # Prismatics
 
-> Performance optimization and monitoring toolkit for modern JavaScript applications
+> Real-time performance monitoring and optimization toolkit for React and React Native applications
 
-Prismatics is a comprehensive toolkit for building performance-aware applications. It provides real-time performance monitoring and automatic optimization capabilities for both web and mobile applications.
+Prismatics provides a comprehensive set of tools and utilities for monitoring, analyzing, and optimizing application performance in real-time.
 
 ## 📦 Packages
 
@@ -13,12 +13,13 @@ Prismatics is a comprehensive toolkit for building performance-aware application
 
 ## ✨ Key Features
 
-- 📊 Real-time performance monitoring
-- 🔄 Automatic UI adaptation
+- 📊 Real-time performance monitoring (FPS, memory usage, battery status)
+- 🔄 Performance-aware components with automatic optimization
+- 📈 Detailed performance metrics and analysis
+- ⚡️ Task performance tracking and optimization
 - 🔋 Battery-aware optimizations
-- ⚡️ Web Vitals tracking (React)
 - 📱 Platform-specific optimizations
-- 🎯 Component-level performance boundaries
+- 🎯 Performance boundaries for conditional rendering
 
 ## 🚀 Quick Start
 
@@ -26,48 +27,90 @@ Prismatics is a comprehensive toolkit for building performance-aware application
 
 ```bash
 npm install @prismatics/react
+# or
+yarn add @prismatics/react
+# or
+pnpm add @prismatics/react
 ```
 
 ```tsx
-import { PerformanceBoundary } from '@prismatics/react';
+import { PerformanceProvider, PerformanceClient } from '@prismatics/react';
 
+// Create a performance client
+const client = new PerformanceClient({
+  thresholds: {
+    fps: 45,
+    memoryPercentage: 70,
+    pageLoadTime: 3000,
+  },
+  sampleRate: 1000,
+  enableBatteryMonitoring: true,
+  enableWebVitals: true,
+});
+
+// Wrap your application with the provider
 function App() {
   return (
-    <PerformanceBoundary
-      fallback={<LightweightView />}
-      config={{ thresholds: { fps: 30 } }}
-    >
-      <ComplexView />
-    </PerformanceBoundary>
+    <PerformanceProvider client={client}>
+      <YourApp />
+    </PerformanceProvider>
+  );
+}
+
+// Monitor performance in components
+function YourComponent() {
+  const { metrics, isLowPerformance } = usePerformanceMonitor();
+  const { executeTask } = usePerformanceTask({
+    name: 'heavy-operation',
+    threshold: 100,
+  });
+
+  // Handle performance-intensive tasks
+  const handleHeavyOperation = async () => {
+    try {
+      await executeTask(async () => {
+        // Your heavy computation here
+      });
+    } catch (error) {
+      console.error('Failed:', error);
+    }
+  };
+
+  return (
+    <div>
+      <p>Current FPS: {metrics?.fps}</p>
+      <button onClick={handleHeavyOperation}>
+        Execute Heavy Task
+      </button>
+    </div>
   );
 }
 ```
 
-### For React Native Applications
+## 📊 Features in Detail
 
-```bash
-npm install @prismatics/react-native
-```
+### Performance Monitoring
+- Real-time FPS tracking
+- Memory usage monitoring
+- Battery status tracking
+- Web Vitals metrics
+- Performance issue detection
 
-```tsx
-import { PerformanceBoundary } from '@prismatics/react-native';
+### Performance Tasks
+- Track and measure heavy operations
+- Automatic performance impact analysis
+- Threshold-based optimizations
+- Detailed execution metrics
 
-function App() {
-  return (
-    <PerformanceBoundary
-      fallback={<SimpleList />}
-      config={{ thresholds: { fps: 30 } }}
-    >
-      <ComplexList />
-    </PerformanceBoundary>
-  );
-}
-```
+### Performance Subscriptions
+- Real-time metrics updates
+- Performance trend analysis
+- Customizable monitoring intervals
+- Automatic adaptation to performance conditions
 
 ## 🛠️ Development
 
 ### Prerequisites
-
 - Node.js >= 16
 - pnpm >= 8.0.0
 
@@ -92,15 +135,12 @@ pnpm dev
 ```
 
 ## 📚 Documentation
-
 - [@prismatics/react documentation](./packages/react/README.md)
 - [@prismatics/react-native documentation](./packages/react-native/README.md)
-- [Contributing Guide](./CONTRIBUTING.md)
-- [Examples](./examples)
 
 ## 🤝 Contributing
 
-We welcome contributions! See our [Contributing Guide](./CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
 
 ## 📄 License
 

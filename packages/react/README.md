@@ -1,18 +1,15 @@
 # @prismatics/react
 
-A powerful performance management and optimization system for React web applications. Monitor performance metrics in real-time, automatically adapt UI based on performance constraints, and optimize your application for various device capabilities.
-
-> ⚠️ **Beta Software**: This package is in early beta. While functional, it may contain bugs and the API might change between versions.
+A powerful performance monitoring and optimization system for React applications. Monitor performance in real-time, track performance-intensive tasks, and optimize your application based on performance metrics.
 
 ## Features
 
 - 📊 Real-time performance monitoring (FPS, memory, Web Vitals)
-- 🔄 Automatic UI adaptation based on performance metrics
-- 🔋 Battery-aware optimizations (where supported)
-- ⚡️ Web Vitals tracking
-- 🎯 Component-level performance boundaries
-- 📱 Responsive to device capabilities
-- 🔍 Debug mode for development
+- 🔄 Performance task tracking and optimization
+- 🔋 Battery-aware adaptations
+- 📈 Performance trend analysis
+- ⚡️ Automatic performance issue detection
+- 🎯 Detailed performance metrics and reporting
 
 ## Installation
 
@@ -24,132 +21,183 @@ yarn add @prismatics/react
 pnpm add @prismatics/react
 ```
 
-## Quick Start
+## Core Concepts
 
-```tsx
-import { PerformanceBoundary, usePerformance } from '@prismatics/react';
+### 1. Performance Client
 
-// Using Performance Boundary
-function ComplexDataView() {
+The PerformanceClient is the core of the monitoring system. It manages configuration, tracks FPS, memory usage, and other performance metrics.
+
+```typescript
+import { PerformanceClient } from '@prismatics/react';
+
+const client = new PerformanceClient({
+  thresholds: {
+    fps: 45,
+    memoryPercentage: 70,
+    pageLoadTime: 3000,
+  },
+  sampleRate: 1000,
+  enableBatteryMonitoring: true,
+  enableWebVitals: true,
+  adaptiveMonitoring: true,
+});
+```
+
+### 2. Performance Provider
+
+The Provider component sets up the performance monitoring context for your application.
+
+```typescript
+import { PerformanceProvider } from '@prismatics/react';
+
+function App() {
   return (
-    <PerformanceBoundary
-      fallback={<SimpleDataView />}
-      config={{
-        thresholds: {
-          fps: 30,
-          memoryPercentage: 80,
-          pageLoadTime: 3000
-        }
-      }}
-      onPerformanceChange={(isLow, metrics) => {
-        console.log('Performance changed:', { isLow, metrics });
-      }}
-    >
-      <RichDataVisualization />
-    </PerformanceBoundary>
+    <PerformanceProvider client={client}>
+      <YourApp />
+    </PerformanceProvider>
   );
 }
+```
 
-// Using Performance Hook
-function PerformanceMonitor() {
-  const { metrics, isLowPerformance } = usePerformance({
+### 3. Performance Monitoring Hook
+
+Monitor performance metrics in your components:
+
+```typescript
+import { usePerformanceMonitor } from '@prismatics/react';
+
+function PerformanceAwareComponent() {
+  const { 
+    metrics,
+    isLowPerformance,
+    isBatteryMonitoringAvailable
+  } = usePerformanceMonitor({
     sampleRate: 1000,
     enableBatteryMonitoring: true,
-    enableWebVitals: true
   });
-
-  if (!metrics) return null;
 
   return (
     <div>
-      <h3>Performance Metrics</h3>
-      <dl>
-        <dt>FPS</dt>
-        <dd>{metrics.fps.toFixed(1)}</dd>
-        
-        <dt>Memory Usage</dt>
-        <dd>{metrics.memory.percentage.toFixed(1)}%</dd>
-        
-        {metrics.pageLoadTime && (
-          <>
-            <dt>Page Load Time</dt>
-            <dd>{(metrics.pageLoadTime / 1000).toFixed(2)}s</dd>
-          </>
-        )}
-        
-        {metrics.batteryInfo && (
-          <>
-            <dt>Battery</dt>
-            <dd>{metrics.batteryInfo.level.toFixed(1)}% {metrics.batteryInfo.charging ? '(Charging)' : ''}</dd>
-          </>
-        )}
-      </dl>
+      <p>FPS: {metrics?.fps}</p>
+      <p>Memory Usage: {metrics?.memory.percentage}%</p>
+      {isLowPerformance && (
+        <p>Performance issues detected!</p>
+      )}
     </div>
   );
 }
 ```
 
-## API Reference
+### 4. Performance Tasks
 
-### PerformanceBoundary
+Track and optimize performance-intensive operations:
 
-Component that provides automatic performance-based view switching.
+```typescript
+import { usePerformanceTask } from '@prismatics/react';
 
-```tsx
-interface PerformanceBoundaryProps {
-  children: React.ReactNode;
-  fallback: React.ReactNode;
-  config?: PerformanceConfig;
-  onPerformanceChange?: (isLow: boolean, metrics: PerformanceMetrics | null) => void;
-}
-
-<PerformanceBoundary
-  fallback={<LightweightComponent />}
-  config={{
-    thresholds: {
-      fps: 30,
-      memoryPercentage: 80,
-      pageLoadTime: 3000,
-      timeToInteractive: 5000,
-      batteryLevel: 20
+function DataProcessor() {
+  const { executeTask } = usePerformanceTask({
+    name: 'data-processing',
+    threshold: 100,
+    onComplete: (result) => {
+      console.log('Task completed:', result);
     },
-    sampleRate: 1000,
-    enableBatteryMonitoring: true,
-    enableWebVitals: true,
-    adaptiveMonitoring: true
-  }}
->
-  <HeavyComponent />
-</PerformanceBoundary>
+    onThresholdExceeded: (result) => {
+      console.warn('Performance threshold exceeded:', result);
+    },
+  });
+
+  const processData = async () => {
+    try {
+      const result = await executeTask(async () => {
+        // Your heavy computation here
+        return processedData;
+      });
+      setData(result);
+    } catch (error) {
+      console.error('Processing failed:', error);
+    }
+  };
+
+  return <button onClick={processData}>Process Data</button>;
+}
 ```
 
-### usePerformance Hook
+### 5. Performance Subscriptions
 
-Hook for accessing performance metrics and status.
+Subscribe to performance updates and track trends:
 
-```tsx
-const {
-  metrics,          // Current performance metrics
-  isLowPerformance, // Whether performance is below thresholds
-  isBatteryMonitoringAvailable // Whether battery API is available
-} = usePerformance({
+```typescript
+import { usePerformanceSubscription } from '@prismatics/react';
+
+function PerformanceMonitor() {
+  usePerformanceSubscription((metrics) => {
+    // React to performance changes
+    if (metrics.fps < 30) {
+      console.warn('Low FPS detected');
+    }
+  }, { immediate: true });
+
+  return <PerformanceDisplay />;
+}
+```
+
+## API Reference
+
+### PerformanceClient
+
+```typescript
+interface PerformanceConfig {
   thresholds?: {
     fps?: number;
     memoryPercentage?: number;
     pageLoadTime?: number;
-    timeToInteractive?: number;
     batteryLevel?: number;
-  },
+  };
   sampleRate?: number;
   enableBatteryMonitoring?: boolean;
   enableWebVitals?: boolean;
   adaptiveMonitoring?: boolean;
+}
+
+const client = new PerformanceClient(config?: PerformanceConfig);
+```
+
+### Hooks
+
+#### usePerformanceMonitor
+
+```typescript
+const {
+  metrics,          // Current performance metrics
+  isLowPerformance, // Performance below thresholds
+  isBatteryMonitoringAvailable
+} = usePerformanceMonitor(config?: PerformanceConfig);
+```
+
+#### usePerformanceTask
+
+```typescript
+const { executeTask } = usePerformanceTask({
+  name?: string;
+  threshold?: number;
+  onComplete?: (result: PerformanceTraceResult) => void;
+  onThresholdExceeded?: (result: PerformanceTraceResult) => void;
 });
+```
+
+#### usePerformanceSubscription
+
+```typescript
+usePerformanceSubscription(
+  onMetricsUpdate: (metrics: PerformanceMetrics) => void,
+  options?: { immediate?: boolean }
+);
 ```
 
 ### Performance Metrics
 
-```tsx
+```typescript
 interface PerformanceMetrics {
   fps: number;
   memory: {
@@ -157,10 +205,8 @@ interface PerformanceMetrics {
     total: number;   // Bytes
     percentage: number;
   };
-  // Web-specific metrics
   pageLoadTime?: number;
   firstContentfulPaint?: number;
-  largestContentfulPaint?: number;
   timeToInteractive?: number;
   batteryInfo?: {
     level: number;
@@ -169,8 +215,20 @@ interface PerformanceMetrics {
     dischargingTime: number;
   };
   timestamp: number;
+  performanceIssue?: {
+    type: string;
+    value: number;
+  };
 }
 ```
+
+## Best Practices
+
+1. **Initialize Early**: Set up the PerformanceClient at your app's entry point
+2. **Set Appropriate Thresholds**: Adjust thresholds based on your app's requirements
+3. **Use Performance Tasks**: Wrap heavy computations in performance tasks
+4. **Monitor Trends**: Use subscriptions to track performance over time
+5. **Handle Performance Issues**: Implement fallbacks for low-performance scenarios
 
 ## Browser Support
 
@@ -182,40 +240,6 @@ interface PerformanceMetrics {
 | Web Vitals | ✅ | ✅ | ✅ | ✅ |
 
 *Limited support or different implementation
-
-## Best Practices
-
-1. **Strategic Placement**: Place performance boundaries around computationally expensive components or those with heavy rendering
-   
-2. **Appropriate Thresholds**: Set thresholds based on your application's requirements and user experience goals
-   
-3. **Lightweight Fallbacks**: Design fallback components to be significantly lighter than their full versions
-   
-4. **Progressive Enhancement**: Use performance monitoring to progressively enhance features based on device capabilities
-
-## Debugging
-
-Enable debug mode for detailed performance logs:
-
-```tsx
-<PerformanceBoundary
-  config={{
-    debug: true,
-    debugCallback: (metrics) => {
-      console.log('Performance metrics:', metrics);
-    }
-  }}
->
-  {/* Your components */}
-</PerformanceBoundary>
-```
-
-## Known Limitations
-
-- Memory monitoring accuracy varies by browser
-- Battery API support is not universal
-- Some Web Vitals metrics may not be available in all browsers
-- Performance monitoring itself has a small performance cost
 
 ## Contributing
 

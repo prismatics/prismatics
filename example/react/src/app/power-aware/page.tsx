@@ -1,6 +1,6 @@
 'use client';
 
-import { usePerformance } from '@prismatics/react';
+import { usePerformanceMonitor } from '@prismatics/react';
 import { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -57,7 +57,7 @@ function SimpleChart({ data }: { data: any[] }) {
 }
 
 export default function PowerAwarePage() {
-    const { metrics, isBatteryMonitoringAvailable } = usePerformance({
+    const { metrics, isBatteryMonitoringAvailable } = usePerformanceMonitor({
         enableBatteryMonitoring: true,
         sampleRate: 1000,
     });
